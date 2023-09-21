@@ -1,0 +1,9 @@
+{
+    "settings": {
+        "listen_directory": "superset",
+        "margin_filename_prefix": "MarginTrades_",
+        "shortsell_filename_prefix": "ShortSellTrades_",
+        "margin_table_name": "MarginTrades",
+        "shortsell_table_name": "ShortSellTrades"
+    }
+}

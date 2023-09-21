@@ -1,0 +1,5 @@
+/superset/*
+/config/*.json
+/.DS_Store
+
+!/config/config.example.json
