@@ -6,19 +6,19 @@ import (
 	"path/filepath"
 )
 
-type Configuration struct {
-	Settings struct {
-		ListenDirectory         string `json:"listen_directory"`
-		MarginFileNamePrefix    string `json:"margin_filename_prefix"`
-		ShortSellFileNamePrefix string `json:"shortsell_filename_prefix"`
-		MarginTableName         string `json:"margin_table_name"`
-		ShortSellTableName      string `json:"shortsell_table_name"`
-	} `json:"settings"`
+type Setting struct {
+	ListenDirectory         string `json:"listen_directory"`
+	MarginFileNamePrefix    string `json:"margin_filename_prefix"`
+	ShortSellFileNamePrefix string `json:"shortsell_filename_prefix"`
+	MarginTableName         string `json:"margin_table_name"`
+	ShortSellTableName      string `json:"shortsell_table_name"`
 }
 
-func BuildConfiguration() {
-	var config *Configuration
+type Configuration struct {
+	Settings *Setting `json:"settings"`
+}
 
+func BuildSettings() *Setting {
 	basePath, err := os.Getwd()
 	if err != nil {
 		panic(err)
@@ -29,10 +29,12 @@ func BuildConfiguration() {
 		panic(err)
 	}
 
-	config = new(Configuration)
+	config := new(Configuration)
 
 	err = json.Unmarshal(stream, &config)
 	if err != nil {
 		panic(err)
 	}
+
+	return config.Settings
 }
