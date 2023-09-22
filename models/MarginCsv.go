@@ -19,3 +19,7 @@ type MarginCsv struct {
 	Value             float64
 	IsMargin          bool
 }
+
+func (o MarginCsv) GetDateStr() string {
+	return o.Date.Format(time.RFC3339)
+}

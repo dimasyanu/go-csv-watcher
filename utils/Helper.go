@@ -1,34 +1,45 @@
 package utils
 
 import (
-	"fmt"
-	"time"
+	"os"
 
 	"github.com/dimasyanu/go-csv-watcher/config"
 )
 
 type Helper struct {
-	_settings *config.Setting
+	Settings *config.Setting
+	BasePath string
 }
 
 func CreateHelper(settings *config.Setting) Helper {
+	basePath, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
 	return Helper{
-		_settings: settings,
+		Settings: settings,
+		BasePath: basePath,
 	}
 }
 
-func (o Helper) DateToString(datetime time.Time) string {
-	now := time.Now()
+func (o Helper) GetListenDir() string {
+	basePath := o.BasePath
+	listenDir := o.Settings.ListenDirectory
 
-	result := fmt.Sprint(
-		"%d-%02d-%2dT%02d:%02d:%02d\n",
-		now.Year(),
-		now.Month(),
-		now.Day(),
-		now.Hour(),
-		now.Minute(),
-		now.Second(),
-	)
+	// Additional slash
+	if basePath[len(basePath)-1:] != "/" && listenDir[:1] != "/" {
+		listenDir = "/" + listenDir
+	}
+	listenDir = basePath + listenDir
 
-	return result
+	// Create directory if it is not exists
+	if _, err := os.Stat(listenDir); os.IsNotExist(err) {
+		err := os.Mkdir(listenDir, 0775)
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	return listenDir
 }

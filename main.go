@@ -10,7 +10,8 @@ import (
 
 var _settings = config.BuildSettings()
 var _helper = utils.CreateHelper(_settings)
-var _dirWatcher = utils.CreateDirWatcher(_settings)
+var _dirWatcher = utils.CreateDirWatcher(_settings, &_helper)
+var _csvEngine = utils.CreateCsvProcessEngine(_settings, &_helper)
 
 func main() {
 	Setup()
@@ -28,6 +29,7 @@ func WatchDirectory() {
 	}
 
 	for _, file := range files {
-		fmt.Println(file.Name())
+		data := _csvEngine.ExtractCsvData(file)
+		fmt.Println(data)
 	}
 }

@@ -3,25 +3,19 @@ package utils
 import (
 	"io/fs"
 	"io/ioutil"
-	"os"
 
 	"github.com/dimasyanu/go-csv-watcher/config"
 )
 
 type DirWatcherProcessEngine struct {
 	Settings *config.Setting
-	BasePath string
+	Helper   *Helper
 }
 
-func CreateDirWatcher(setting *config.Setting) DirWatcherProcessEngine {
-	basePath, err := os.Getwd()
-	if err != nil {
-		panic(err)
-	}
-
+func CreateDirWatcher(setting *config.Setting, helper *Helper) DirWatcherProcessEngine {
 	return DirWatcherProcessEngine{
 		Settings: setting,
-		BasePath: basePath,
+		Helper:   helper,
 	}
 }
 
@@ -30,22 +24,7 @@ func (o DirWatcherProcessEngine) FileExists() bool {
 }
 
 func (o DirWatcherProcessEngine) GetFiles() []fs.FileInfo {
-	basePath := o.BasePath
-	listenDir := o.Settings.ListenDirectory
-
-	// Additional slash
-	if basePath[len(basePath)-1:] != "/" && listenDir[:1] != "/" {
-		listenDir = "/" + listenDir
-	}
-	listenDir = basePath + listenDir
-
-	// Create directory if it is not exists
-	if _, err := os.Stat(listenDir); os.IsNotExist(err) {
-		err := os.Mkdir(listenDir, os.ModeDir)
-		if err != nil {
-			panic(err)
-		}
-	}
+	listenDir := o.Helper.GetListenDir()
 
 	// List files
 	files, err := ioutil.ReadDir(listenDir)
