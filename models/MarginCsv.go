@@ -7,17 +7,21 @@ import (
 type MarginCsv struct {
 	AbCode            string
 	Date              time.Time
-	TradingId         int64
+	TradingId         string
 	OrderNumber       int64
 	TransactionNumber int64
 	DateTime          time.Time
-	BuySell           rune
+	BuySell           string
 	SecurityCode      string
 	Board             string
 	Price             float64
 	Quantity          int64
 	Value             float64
 	IsMargin          bool
+}
+
+func CreateMarginCsv() *MarginCsv {
+	return &MarginCsv{}
 }
 
 func (o MarginCsv) GetDateStr() string {

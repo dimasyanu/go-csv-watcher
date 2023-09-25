@@ -29,7 +29,11 @@ func WatchDirectory() {
 	}
 
 	for _, file := range files {
-		data := _csvEngine.ExtractCsvData(file)
-		fmt.Println(data)
+		items := _csvEngine.ExtractCsvData(file)
+		if items == nil {
+		}
+		for _, item := range items {
+			fmt.Println(item)
+		}
 	}
 }

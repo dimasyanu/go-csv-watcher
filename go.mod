@@ -1,3 +1,3 @@
 module github.com/dimasyanu/go-csv-watcher
 
-go 1.23
+go 1.21.1
