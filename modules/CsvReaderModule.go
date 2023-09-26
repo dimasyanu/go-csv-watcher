@@ -1,4 +1,4 @@
-package utils
+package modules
 
 import (
 	"bufio"
@@ -11,22 +11,23 @@ import (
 	"time"
 
 	"github.com/dimasyanu/go-csv-watcher/config"
-	"github.com/dimasyanu/go-csv-watcher/models"
+	"github.com/dimasyanu/go-csv-watcher/contracts"
+	"github.com/dimasyanu/go-csv-watcher/utils"
 )
 
-type CsvProcessEngine struct {
+type CsvReaderModule struct {
 	Settings *config.Setting
-	Helper   *Helper
+	Helper   *utils.Helper
 }
 
-func CreateCsvProcessEngine(settings *config.Setting, helper *Helper) *CsvProcessEngine {
-	return &CsvProcessEngine{
+func CreateCsvReaderModule(settings *config.Setting, helper *utils.Helper) *CsvReaderModule {
+	return &CsvReaderModule{
 		Settings: settings,
 		Helper:   helper,
 	}
 }
 
-func (o CsvProcessEngine) ExtractCsvData(file fs.FileInfo) []models.ICsvModel {
+func (o CsvReaderModule) ExtractCsvData(file fs.DirEntry, fn func(string) contracts.ICsvModel) []contracts.ICsvModel {
 	fileStream, err := os.Open(o.Helper.GetListenDir() + "/" + file.Name())
 	if err != nil {
 		panic(err)
@@ -35,14 +36,14 @@ func (o CsvProcessEngine) ExtractCsvData(file fs.FileInfo) []models.ICsvModel {
 	fileScanner := bufio.NewScanner(fileStream)
 	fileScanner.Split(bufio.ScanLines)
 
-	results := []models.ICsvModel{}
+	results := []contracts.ICsvModel{}
 	i := 0
 	for fileScanner.Scan() {
 		text := fileScanner.Text()
 		if i > 10 || strings.Contains(text, "Efek;board") {
 			continue
 		}
-		item := o.ParseTextIntoModel(file.Name(), text)
+		item := o.ParseTextIntoModel(file.Name(), text, fn)
 		results = append(results, item)
 		i++
 	}
@@ -52,7 +53,7 @@ func (o CsvProcessEngine) ExtractCsvData(file fs.FileInfo) []models.ICsvModel {
 	return results
 }
 
-func (o CsvProcessEngine) ParseTextIntoModel(fileName string, text string) models.ICsvModel {
+func (o CsvReaderModule) ParseTextIntoModel(fileName string, text string, getModelByFileName func(string) contracts.ICsvModel) contracts.ICsvModel {
 	// Turn each line into array of values
 	segments := strings.Split(text, ";")
 	if false {
@@ -60,10 +61,7 @@ func (o CsvProcessEngine) ParseTextIntoModel(fileName string, text string) model
 	}
 
 	// Determine model type
-	var newItem models.ICsvModel
-	if strings.HasPrefix(fileName, o.Settings.MarginFileNamePrefix) {
-		newItem = models.CreateMarginCsv()
-	}
+	var newItem = getModelByFileName(fileName)
 
 	objInfo := reflect.ValueOf(newItem)
 	objValues := objInfo.Elem()
